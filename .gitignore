@@ -137,3 +137,6 @@ dist
 
 # dist files
 dist
+
+# cache files
+.DS_Store

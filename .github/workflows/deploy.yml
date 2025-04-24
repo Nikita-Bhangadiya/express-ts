@@ -1,0 +1,42 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        npm ci
+
+    - name: Build the application
+      run: |
+        npm run build
+
+    - name: Deploy to EC2
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+      run: |
+        zip -r app.zip dist package.json
+        scp -i ${{ secrets.EC2_SSH_KEY }} app.zip ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app.zip
+        ssh -i ${{ secrets.EC2_SSH_KEY }} ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          unzip -o app.zip -d app
+          cd app
+          npm install --only=production
+          pm2 restart all || pm2 start dist/index.js --name "express-ts"
+        EOF

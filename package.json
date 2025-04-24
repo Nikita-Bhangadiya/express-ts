@@ -1,22 +1,36 @@
 {
-  "name": "training",
+  "name": "express-ts",
+  "description": "A simple Express.js application written in TypeScript",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "start": "node dist/index.js"
-  },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "express",
+    "typescript",
+    "nodejs"
+  ],
+  "author": "nikita.bhangadiya@bacancy.com",
   "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "@types/express": "^5.0.1",
-    "@types/node": "^22.14.1",
-    "typescript": "^5.8.3"
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only index.ts",
+    "start": "node dist/index.js",
+    "pm2-start": "pm2 start dist/index.js --name 'express-ts'",
+    "pm2:restart": "pm2 restart express-ts",
+    "pm2:stop": "pm2 stop express-ts",
+    "pm2:delete": "pm2 delete express-ts",
+    "pm2:logs": "pm2 logs express-ts"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.14.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
   }
 }
