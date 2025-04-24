@@ -13,7 +13,7 @@
     "build": "tsc",
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "start": "node dist/index.js",
-    "pm2-start": "pm2 start dist/index.js --name 'express-ts'",
+    "pm2:start": "pm2 start dist/index.js --name 'express-ts'",
     "pm2:restart": "pm2 restart express-ts",
     "pm2:stop": "pm2 stop express-ts",
     "pm2:delete": "pm2 delete express-ts",
@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "express": "^5.1.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "pm2": "^6.0.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
