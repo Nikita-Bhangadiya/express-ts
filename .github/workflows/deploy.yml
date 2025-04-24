@@ -1,15 +1,15 @@
 name: Deploy to EC2
 
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - master
   workflow_dispatch:
     inputs:
       branch:
         description: 'Branch to deploy'
         required: true
-        default: 'main'
+        default: 'master'
 
 jobs:
   deploy:
@@ -43,6 +43,6 @@ jobs:
         ssh -i ${{ secrets.EC2_SSH_KEY }} ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
           unzip -o app.zip -d app
           cd app
-          npm install --only=production
+          npm ci --only=production
           pm2 restart all || pm2 start dist/index.js --name "express-ts"
         EOF
