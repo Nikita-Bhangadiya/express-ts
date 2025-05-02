@@ -5,10 +5,7 @@ on:
   #     - master
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'Branch to deploy'
-        required: true
-        default: 'master'
+      
 jobs:
   deploy:
     runs-on: ubuntu-latest
