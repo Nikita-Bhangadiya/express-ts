@@ -1,48 +1,64 @@
-name: Deploy to EC2
-
+name: Deploy
 on:
   # push:
   #   branches:
   #     - master
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'Branch to deploy'
-        required: true
-        default: 'master'
-
+      
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-    - name: Install dependencies
-      run: |
-        npm ci
+      - name: Install dependencies
+        run: |
+          npm ci
 
-    - name: Build the application
-      run: |
-        npm run build
+      - name: Build the application
+        run: |
+          npm run build
 
-    - name: Deploy to EC2
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: ${{ secrets.AWS_REGION }}
-      run: |
-        zip -r app.zip dist package.json
-        scp -i ${{ secrets.EC2_SSH_KEY }} app.zip ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app.zip
-        ssh -i ${{ secrets.EC2_SSH_KEY }} ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          unzip -o app.zip -d app
-          cd app
-          npm ci --only=production
-          pm2 restart all || pm2 start dist/index.js --name "express-ts"
-        EOF
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add EC2 host to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        run: |
+          set -e
+
+          zip -r app.zip dist package.json package-lock.json
+          scp app.zip ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app.zip
+
+          if [ $? -ne 0 ]; then
+            echo "SCP failed"
+            exit 1
+          fi
+
+          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            set -e
+            unzip -o app.zip -d app
+            cd app
+            npm ci --omit=dev
+            npm run pm2:restart all || npm run pm2:start
+          EOF
+
+          if [ $? -ne 0 ]; then
+            echo "SSH command failed"
+            exit 1
+          fi
+
+          rm -f app.zip
+          echo "Deployment to EC2 completed successfully."
