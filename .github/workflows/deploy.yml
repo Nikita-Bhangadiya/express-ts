@@ -52,7 +52,7 @@ jobs:
         run: |
           set -e
 
-          zip -r app.zip dist package.json
+          zip -r app.zip dist package.json package-lock.json
           scp app.zip ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app.zip
 
           if [ $? -ne 0 ]; then
