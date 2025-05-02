@@ -3,12 +3,7 @@ on:
   # push:
   #   branches:
   #     - master
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to deploy'
-        required: true
-        default: 'master'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -22,14 +17,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: npm-cache-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            npm-cache-
 
       - name: Install dependencies
         run: |
