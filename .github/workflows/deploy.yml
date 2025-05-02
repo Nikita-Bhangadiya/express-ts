@@ -40,7 +40,7 @@ jobs:
           npm run build
 
       - name: Setup SSH Agent
-        uses: actions/ssh-agent@v1
+        uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
